@@ -1,4 +1,3 @@
-```
 target/
 .mvn/
 mvnw
@@ -10,4 +9,4 @@ mvnw.cmd
 *.iml
 .DS_Store
 *.log
-```
+
