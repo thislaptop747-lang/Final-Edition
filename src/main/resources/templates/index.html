@@ -241,6 +241,16 @@
             transform: translateY(0);
         }
 
+        .export-btn {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+        }
+
+        .export-btn:hover {
+            background: #2a2a2a;
+            box-shadow: 0 0 20px rgba(42, 42, 42, 0.4);
+        }
+
         .stats-card {
             background: transparent;
             border: 1px solid #1a1a1a;
@@ -522,6 +532,13 @@
         <div class="value">₹<span th:text="${#numbers.formatDecimal(total, 1, 2)}">0.00</span></div>
     </div>
 
+    <!-- NEW: Export Button (only shows when expenses exist) -->
+    <div th:if="${!#lists.isEmpty(expenses)}" style="margin-bottom: 40px;">
+        <a href="/export" class="btn export-btn" style="display: inline-block; text-align: center; text-decoration: none;">
+            Export to CSV
+        </a>
+    </div>
+
     <div th:if="${#lists.isEmpty(expenses)}" class="empty-state reveal" style="animation-delay: 0.3s;">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -555,26 +572,21 @@
     const phrases = [
         "Store. Track. Optimize.",
         "Manage expenses effortlessly",
-        "Keep your finances organized"
+        "Keep your finances organized",
+        "Click add expense to get started"
     ];
-    const defaultText = "Click add expense to get started";
     let phraseIndex = 0;
     let charIndex = 0;
     let isDeleting = false;
     let typingSpeed = 80;
-    let hasCompletedCycle = false;
+    let isLastPhrase = false;
 
     function typeEffect() {
         const typingText = document.getElementById('typingText');
-
-        // If cycle is complete, show default text and stop
-        if (hasCompletedCycle) {
-            typingText.textContent = defaultText;
-            typingText.style.cssText = 'opacity: 1;';
-            return;
-        }
-
         const currentPhrase = phrases[phraseIndex];
+
+        // Check if we're on the last phrase
+        isLastPhrase = (phraseIndex === phrases.length - 1);
 
         if (isDeleting) {
             typingText.textContent = currentPhrase.substring(0, charIndex - 1);
@@ -587,17 +599,14 @@
         }
 
         if (!isDeleting && charIndex === currentPhrase.length) {
+            // If it's the last phrase, stop the animation
+            if (isLastPhrase) {
+                return;
+            }
             setTimeout(() => { isDeleting = true; }, 2000);
         } else if (isDeleting && charIndex === 0) {
             isDeleting = false;
             phraseIndex++;
-
-            // Check if we've completed all phrases
-            if (phraseIndex >= phrases.length) {
-                hasCompletedCycle = true;
-                setTimeout(typeEffect, 500);
-                return;
-            }
         }
 
         setTimeout(typeEffect, typingSpeed);
