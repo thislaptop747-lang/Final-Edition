@@ -9,7 +9,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class ExpenseController {
@@ -18,10 +20,25 @@ public class ExpenseController {
     private Long nextId = 1L;
 
     @GetMapping("/")
-    public String index(Model model) {
+    public String index(@RequestParam(required = false) String sort, Model model) {
+        List<Expense> sortedExpenses = new ArrayList<>(expenses);
+        
+        // Sort based on parameter
+        if ("amount-high".equals(sort)) {
+            sortedExpenses.sort(Comparator.comparingDouble(Expense::getAmount).reversed());
+        } else if ("amount-low".equals(sort)) {
+            sortedExpenses.sort(Comparator.comparingDouble(Expense::getAmount));
+        } else if ("date-new".equals(sort)) {
+            sortedExpenses.sort(Comparator.comparing(Expense::getDate).reversed());
+        } else if ("date-old".equals(sort)) {
+            sortedExpenses.sort(Comparator.comparing(Expense::getDate));
+        }
+        
         double total = expenses.stream().mapToDouble(Expense::getAmount).sum();
-        model.addAttribute("expenses", expenses);
+        model.addAttribute("expenses", sortedExpenses);
         model.addAttribute("total", total);
+        model.addAttribute("currentSort", sort);
+        
         return "index";
     }
 
@@ -42,7 +59,6 @@ public class ExpenseController {
         return "redirect:/";
     }
 
-    // NEW FEATURE: Export to CSV
     @GetMapping("/export")
     public void exportToCSV(HttpServletResponse response) throws IOException {
         response.setContentType("text/csv");
@@ -50,16 +66,14 @@ public class ExpenseController {
         
         PrintWriter writer = response.getWriter();
         
-        // CSV Header
         writer.println("Date,Project,Category,Description,Amount");
         
-        // CSV Data
         for (Expense expense : expenses) {
             writer.println(String.format("%s,%s,%s,\"%s\",%.2f",
                 expense.getDate(),
                 expense.getProject(),
                 expense.getCategory(),
-                expense.getDescription().replace("\"", "\"\""), // Escape quotes
+                expense.getDescription().replace("\"", "\"\""),
                 expense.getAmount()
             ));
         }
