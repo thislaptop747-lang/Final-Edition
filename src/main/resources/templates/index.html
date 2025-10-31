@@ -83,7 +83,6 @@
             51%, 100% { opacity: 0; }
         }
 
-        /* Prevent white background on autofill */
         input:-webkit-autofill,
         input:-webkit-autofill:hover,
         input:-webkit-autofill:focus,
@@ -148,7 +147,6 @@
             color: #333333;
         }
 
-        /* Custom Select Styling */
         .custom-select {
             position: relative;
         }
@@ -251,6 +249,40 @@
             box-shadow: 0 0 20px rgba(42, 42, 42, 0.4);
         }
 
+        .sort-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        .sort-btn {
+            background: transparent;
+            color: #666666;
+            border: 1px solid #1a1a1a;
+            padding: 10px 20px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .sort-btn:hover {
+            border-color: #ff3b30;
+            color: #ff3b30;
+        }
+
+        .sort-btn.active {
+            background: #ff3b30;
+            border-color: #ff3b30;
+            color: #ffffff;
+        }
+
         .stats-card {
             background: transparent;
             border: 1px solid #1a1a1a;
@@ -286,7 +318,6 @@
             color: #ffffff;
         }
 
-        /* Table Container for Mobile Scroll */
         .table-container {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -403,7 +434,6 @@
             font-weight: 300;
         }
 
-        /* Glowing cursor effect - Desktop only */
         @media (hover: hover) and (pointer: fine) {
             .glow-effect {
                 position: fixed;
@@ -418,7 +448,6 @@
             }
         }
 
-        /* Scroll reveal animation */
         .reveal {
             opacity: 0;
             transform: translateY(30px);
@@ -432,7 +461,6 @@
             }
         }
 
-        /* Mobile Optimizations */
         @media (max-width: 768px) {
             body {
                 padding: 24px 16px;
@@ -532,11 +560,18 @@
         <div class="value">₹<span th:text="${#numbers.formatDecimal(total, 1, 2)}">0.00</span></div>
     </div>
 
-    <!-- NEW: Export Button (only shows when expenses exist) -->
     <div th:if="${!#lists.isEmpty(expenses)}" style="margin-bottom: 40px;">
         <a href="/export" class="btn export-btn" style="display: inline-block; text-align: center; text-decoration: none;">
             Export to CSV
         </a>
+    </div>
+
+    <div th:if="${!#lists.isEmpty(expenses)}" class="sort-buttons reveal" style="animation-delay: 0.25s;">
+        <a href="/" class="sort-btn" th:classappend="${currentSort == null} ? 'active' : ''">All</a>
+        <a href="/?sort=amount-high" class="sort-btn" th:classappend="${currentSort == 'amount-high'} ? 'active' : ''">Amount: High → Low</a>
+        <a href="/?sort=amount-low" class="sort-btn" th:classappend="${currentSort == 'amount-low'} ? 'active' : ''">Amount: Low → High</a>
+        <a href="/?sort=date-new" class="sort-btn" th:classappend="${currentSort == 'date-new'} ? 'active' : ''">Date: Newest First</a>
+        <a href="/?sort=date-old" class="sort-btn" th:classappend="${currentSort == 'date-old'} ? 'active' : ''">Date: Oldest First</a>
     </div>
 
     <div th:if="${#lists.isEmpty(expenses)}" class="empty-state reveal" style="animation-delay: 0.3s;">
@@ -568,7 +603,6 @@
 </div>
 
 <script>
-    // Typing animation
     const phrases = [
         "Store. Track. Optimize.",
         "Manage expenses effortlessly",
@@ -585,7 +619,6 @@
         const typingText = document.getElementById('typingText');
         const currentPhrase = phrases[phraseIndex];
 
-        // Check if we're on the last phrase
         isLastPhrase = (phraseIndex === phrases.length - 1);
 
         if (isDeleting) {
@@ -599,7 +632,6 @@
         }
 
         if (!isDeleting && charIndex === currentPhrase.length) {
-            // If it's the last phrase, stop the animation
             if (isLastPhrase) {
                 return;
             }
@@ -612,10 +644,8 @@
         setTimeout(typeEffect, typingSpeed);
     }
 
-    // Start typing animation after page load
     setTimeout(typeEffect, 500);
 
-    // Glowing cursor effect - Desktop only
     if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
         const glowEffect = document.getElementById('glowEffect');
         if (glowEffect) {
@@ -639,7 +669,6 @@
         }
     }
 
-    // Button ripple effect
     document.querySelectorAll('.btn').forEach(button => {
         button.addEventListener('click', function(e) {
             const rect = this.getBoundingClientRect();
